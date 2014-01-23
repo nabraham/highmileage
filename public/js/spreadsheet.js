@@ -35,7 +35,7 @@ function timeSeries(config) {
             type: 'datetime',
         },
         yAxis: {
-            title: { text: config.subtitle },
+            title: { text: config.yAxis },
             plotLines: [{
                 value: 0,
                 width: 1,
