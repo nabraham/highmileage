@@ -39,7 +39,7 @@ $.getJSON(url,{}, function (data) {
     scalc = Convolve.conv(calc, Convolve.flat(5));
     sdisp = Convolve.conv(display, Convolve.flat(5));
     Plot.xy({
-        x: dates, 
+        xs: [dates], 
         xtype: 'datetime', 
         ys: [calc, scalc, display, sdisp],
         names: ['Calculated', 'Calculated-Smooth', 'Display', 'Display-Smooth'],
@@ -51,12 +51,12 @@ $.getJSON(url,{}, function (data) {
     });
 
     Plot.xy({
-        x: dates, 
+        xs: [dates], 
         xtype: 'datetime', 
         ys: [odo],
         names: ['odometer'],
         title: 'Odometer v Time', 
-        subtitle: 'foo', 
+        subtitle: '', 
         ylabel: 'Odometer (miles)', 
         charttype: 'spline', 
         elementId: '#odo'
