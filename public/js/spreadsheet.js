@@ -17,64 +17,48 @@ var field_names = [
     'trip',
 ]; 
 
-function timeSeries(config) {
-    $(config.elementId).highcharts({
-        chart: {
-            type: 'spline',
-            zoomType: 'x'
-        },
-        title: {
-            text: config.title,
-            x: -20 //center
-        },
-        subtitle: {
-            text: config.subtitle,
-            x: -20
-        },
-        xAxis: {
-            type: 'datetime',
-        },
-        yAxis: {
-            title: { text: config.yAxis },
-            plotLines: [{
-                value: 0,
-                width: 1,
-                color: '#808080'
-            }]
-        },
-        series: config.series
-    });
-}
 
-calc = [];
-display = [];
 $.getJSON(url,{}, function (data) { 
+    dates = [];
+    calc = [];
+    display = [];
+    odo = [];
     for (var i=3; i<data.feed.entry.length; i++) {
         var entry = data.feed.entry[i];
         var dateString = entry.gsx$date.$t;
         var calcString = entry.gsx$calculated.$t;
         var displayString = entry.gsx$display.$t;
+        var odoString = entry.gsx$odo.$t;
         if (dateString.length > 0 && calcString.length > 0) {
-            var t = Date.parse(dateString);
-            var c = parseFloat(calcString);
-            var d = parseFloat(displayString);
-            calc.push([t, c]);
-            display.push([t, d]);
+            dates.push( Date.parse(dateString) );
+            calc.push(  parseFloat(calcString) );
+            display.push( parseFloat(displayString) );
+            odo.push( parseInt(odoString) );
         } 
     }
-
-    timeSeries({
-        elementId: '#calc',
-        title: 'Mileage',
-        subtitle: '<a href="' + titleUrl + '">Source: google doc</a>',
-        yAxis: 'Mileage (mpg)',
-        series: [{
-            data: calc,
-            name: 'Calculated'
-        }, {
-            data: display,
-            name: 'Display'
-        }]
+    scalc = Convolve.conv(calc, Convolve.flat(5));
+    sdisp = Convolve.conv(display, Convolve.flat(5));
+    Plot.xy({
+        x: dates, 
+        xtype: 'datetime', 
+        ys: [calc, scalc, display, sdisp],
+        names: ['Calculated', 'Calculated-Smooth', 'Display', 'Display-Smooth'],
+        title: 'Mileage v Time', 
+        subtitle: '<a href="' + titleUrl + '">google doc source</a>', 
+        ylabel: 'Mileage (mpg)', 
+        charttype: 'spline', 
+        elementId: '#current-mileage'
     });
 
+    Plot.xy({
+        x: dates, 
+        xtype: 'datetime', 
+        ys: [odo],
+        names: ['odometer'],
+        title: 'Odometer v Time', 
+        subtitle: 'foo', 
+        ylabel: 'Odometer (miles)', 
+        charttype: 'spline', 
+        elementId: '#odo'
+    });
 });
